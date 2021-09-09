@@ -1,5 +1,6 @@
 window.addEventListener('DOMContentLoaded', function(){
 
+    
     //Tabs
 
     let tabs = document.querySelectorAll('.tabheader__item'),
@@ -23,6 +24,7 @@ window.addEventListener('DOMContentLoaded', function(){
         tabsContent[i].classList.remove('hide');
         tabs[i].classList.add('tabheader__item_active');
     }
+
 
     hideTabContent();
     hideTabContent();
@@ -96,4 +98,3 @@ window.addEventListener('DOMContentLoaded', function(){
 
 });
 
-//hdhdhhdhdhddhdhh
