@@ -26,7 +26,6 @@ window.addEventListener('DOMContentLoaded', function(){
     }
 
 
-    
     hideTabContent();
     hideTabContent();
 
