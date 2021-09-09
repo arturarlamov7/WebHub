@@ -1,6 +1,6 @@
 window.addEventListener('DOMContentLoaded', function(){
 
-    
+
     //Tabs
 
     let tabs = document.querySelectorAll('.tabheader__item'),
@@ -26,6 +26,7 @@ window.addEventListener('DOMContentLoaded', function(){
     }
 
 
+    
     hideTabContent();
     hideTabContent();
 
