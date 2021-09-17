@@ -182,38 +182,14 @@ window.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    new MenuCard(
-        "img/tabs/vegy.jpg",
-        "vegy",
-        'Меню "Фитнес"',
-        'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов.' +
-        ' Продукт активных и здоровых людей. Это абсолютно новый продукт  с оптимальной ценой и высоким качеством!',
-        9,
-        ".menu .container"
-    ).render();
+    getResource('http://localhost:3000/menu')
+        .then(data => {
+            data.forEach(({img, altimg, title, descr, price}) => {
+                new MenuCard(img, altimg, title, descr, price, ".menu .container").render();
+            });
+        });
 
-    new MenuCard(
-        "img/tabs/post.jpg",
-        "post",
-        'Меню "Постное"',
-        'Меню "Постное" - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения,'+
-        ' молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных '+
-        'вегетарианских стейков.',
-        14,
-        ".menu .container"
-    ).render();
-
-    new MenuCard(
-        "img/tabs/elite.jpg",
-        "elite",
-        'Меню "Премиум"',
-        'В меню "Премиум" мы используем не только красивый дизайн упаковки, но и качественное испольнение блюд. '+
-        ' Красная рыба, морепродукты, фрукты - ресторанное меню без подхода в ресторан!',
-        21,
-        ".menu .container"
-    ).render();
-
-    //Forms
+        // Forms
 
     const forms = document.querySelectorAll('form');
     const message = {
@@ -222,15 +198,37 @@ window.addEventListener('DOMContentLoaded', function () {
         failure: 'Что то пошло не так...'
     };
 
-    form.forEach(item => {
-        postData(item);
+    forms.forEach(item => {
+        bindPostData(item);
     });
 
-    function postData(form) {
+    const postData = async (url, data) => {
+        let res = await fetch(url, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application.json'
+            },
+            body: data
+        });
+
+        return await res.json();
+    };
+
+    async function getResource(url) {
+        let res = await fetch(url);
+
+        if (!res.ok) {
+            throw new Error(`Could not fetch ${url}, status: ${res.status}`);
+        }
+
+        return await res.json();
+    }
+
+    function bindPostData(form) {
         form.addEventListener('submit', (e) => {
             e.preventDefault();
 
-            let statusMessage = document.createElement('img');
+            let statusMessage = document.createElement('img')
             statusMessage.src = message.loading;
             statusMessage.style.cssText = `
                 display: block;
@@ -240,18 +238,10 @@ window.addEventListener('DOMContentLoaded', function () {
 
             const formData = new FormData(form);
 
-            const object = {};
-            formData.forEach(function (value, key) {
-                object[key] = value;
-            });
+            const json = JSON.stringify(Object.fromEntries(formData.entries()));
 
-            fetch('server.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(object)              
-            }).then(data => {
+            postData('http://localhost:3000/requests', json)
+            .then(data => {
                 console.log(data);
                 showThanksModal(message.success);
                 statusMessage.remove();
@@ -274,7 +264,7 @@ window.addEventListener('DOMContentLoaded', function () {
         thanksModal.innerHTML = `
             <div class="modal__content">
                 <div class="modal__close" data-close></div>
-                <div class="modal__title">${message}</div>            
+                <div class="modal__title">${message}</div>
             </div>
         `;
         document.querySelector('.modal').append(thanksModal);
@@ -285,4 +275,56 @@ window.addEventListener('DOMContentLoaded', function () {
             closeModal();
         }, 4000);
     }
-});
+
+    // Slider
+
+    let offset = 0;
+    let slideIndex = 1;
+
+    const slides = document.querySelectorAll('.offer__slide'),
+        slider = document.querySelector('.offer__slider'),
+        prev = document.querySelector('.offer__slider-prev'),
+        next = document.querySelector('.offer__slider-next'),
+        total = document.querySelector('#total'),
+        current = document.querySelector('#current'),
+        slidesWrapper = document.querySelector('.offer__slider-wrapper'),
+        width = window.getComputedStyle(slidesWrapper).width,
+        slidesField = document.querySelector('.offer__slider-inner');
+
+    if (slides.length < 10) {
+        total.textContent = `0${slides.length}`;
+        current.textContent = `0${slideIndex}`;
+    } else {
+        total.textContent = slides.length;
+        current.textContent = slideIndex;
+    }
+
+    slidesField.style.width = 100 * slides.length + '%';
+    slidesField.style.display = 'flex';
+    slidesField.style.transition = '0.5s all';
+
+    slidesWrapper.style.overflow = 'hidden';
+
+    slides.forEach(slide => {
+        slide.style.width = width;
+    });
+
+    slider.style.position = 'relative';
+
+    const indicators = document.createElement('ol'),
+        dots = [];
+    indicators.classList.add('carousel-indicators');
+    indicators.style.cssText = `
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 15;
+        justify-content: center;
+        margin-right: 15%;
+        margin-left: 15%;
+        list-style: none;
+    `; //Если - добавьте в стили, но иногда у нас нет доступа к стилям
+    slider.append(indicators);
+
+    for (let i = 0;)
