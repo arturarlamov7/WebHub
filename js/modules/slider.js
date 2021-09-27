@@ -10,9 +10,10 @@ function slider({container, slide, nextArrow, prevArrow, totalCounter, currentCo
         current = document.querySelector(currentCounter),
         slidesWrapper = document.querySelector(wrapper),
         width = window.getComputedStyle(slidesWrapper).width, 
-        slidesField = document.querySelector(field),
+        slidesField = document.querySelector(field);
 
     if (slides.length < 10) {
+
         total.textContent = `0${slides.length}`;
         current.textContent = `0${slideIndex}`;
     } else {
